@@ -83,7 +83,7 @@ getOMLDataSetById = function(data.id = NULL, cache.only = FALSE, verbosity = NUL
   data.desc = parseOMLDataSetDescription(down$doc)
 
   # warn if dataset not cached and deactivated
-  if (!cache.only) {
+  if (!cache.only & !f$dataset.arff$found) {
     if (data.desc$status == "deactivated") {
       stop("Data set has been deactivated.")
     } else if (data.desc$status == "in_preparation") {
@@ -122,6 +122,8 @@ getOMLDataSetById = function(data.id = NULL, cache.only = FALSE, verbosity = NUL
 }
 
 parseOMLDataSetDescription = function(doc) {
+  default.target.attribute = xmlOValS(doc, "/oml:data_set_description/oml:default_target_attribute")
+  
   args = filterNull(list(
     id = xmlRValI(doc, "/oml:data_set_description/oml:id"),
     name = xmlRValS(doc, "/oml:data_set_description/oml:name"),
@@ -135,7 +137,7 @@ parseOMLDataSetDescription = function(doc) {
     language = xmlOValS(doc, "/oml:data_set_description/oml:language"),
     licence = xmlOValS(doc, "/oml:data_set_description/oml:licence"),
     url = xmlRValS(doc, "/oml:data_set_description/oml:url"),
-    default.target.attribute = xmlOValS(doc, "/oml:data_set_description/oml:default_target_attribute"),
+    default.target.attribute = unlist(strsplit(default.target.attribute, ",")),
     row.id.attribute = xmlOValS(doc, "/oml:data_set_description/oml:row_id_attribute"),
     ignore.attribute = xmlOValsMultNsS(doc, "/oml:data_set_description/oml:ignore_attribute"),
     version.label = xmlOValS(doc, "/oml:data_set_description/oml:version_label"),

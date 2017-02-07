@@ -1,6 +1,11 @@
 # assign element in src conf to dest conf
 # if src is NULL, do nothing
 assignConfToConf = function(src, dest) {
+  server.changed = src$server != dest$server
+  if (length(server.changed) == 1) {
+    if (server.changed)
+      forgetAll()
+  }
   if (!is.null(src))
     assertClass(src, "OMLConfig")
   assertClass(dest, "OMLConfig")
