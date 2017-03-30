@@ -1,0 +1,463 @@
+---
+title: "OpenML"
+author: "The OpenML R Team"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{OpenML}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+```{r init, include=FALSE}
+# library("knitr")
+# opts_chunk$set(cache = TRUE)
+library("OpenML")
+setOMLConfig(apikey = "c1994bdb7ecb3c6f3c8f3b35f4b47f1f", 
+  server = "https://www.openml.org/api/v1",
+  verbosity = 0)
+```
+
+## Introduction {#intro}
+The R package OpenML is an interface to make interactions with the [OpenML](http://openml.org/) server as comfortable as possible.
+For example, the users can download and upload files, run their implementations on specific tasks and get predictions in the correct form directly via R commands.
+In this tutorial, we will show the most important functions of this package and give examples on standard workflows.
+
+For general information on what OpenML is, please have a look at the [README file](https://github.com/openml/OpenML/blob/master/README.md) or visit the [official OpenML website](http://openml.org/).
+
+After installation and before making practical use of the package, in most cases it is desirable to [setup a configuration file](#config) to simplify further steps.
+Afterwards, there are different basic stages when using this package or OpenML, respectively:
+
+* [Listing](#listing)
+    * lists which data is available w.r.t. a specific object (`DataSets`, `Tasks`, `Flows`, `Runs`, `RunEvaluations`, `EvaluationMeasures`, and `TaskTypes`)
+    * function names begin with `listOML`
+    * result is always a `data.frame`
+* [Downloading](#download)
+    * downloads the specific objects (for `DataSets`, `Tasks`, `Runs`, `Predictions`, and `Flows`)
+    * function names begin with `getOML`
+    * result is an object of a specific OpenML class
+* [Running models on tasks](#running)
+    * function `runTaskMlr`
+    * input: `OMLTask` and [`Learner`](https://mlr-org.github.io/mlr-tutorial/release/html/learner/index.html)
+    * output: `OMLMlrRun`, `OMLRun`
+* [Uploading](#upload)
+    * function `uploadOMLRun`
+
+### Installation instructions
+
+Installation works as in any other package using
+```{r eval=FALSE}
+install.packages("OpenML")
+```
+To install the current development version use the [`devtools`](https://cran.r-project.org/package=devtools) package and run
+```{r eval=FALSE, message=FALSE}
+devtools::install_github("openml/openml-r")
+```
+Using the OpenML package also requires a reader for the [ARFF](http://www.cs.waikato.ac.nz/ml/weka/arff.html) file format. By default [farff](https://cran.r-project.org/package=farff) is used. Alternatively, the [RWeka](https://cran.r-project.org/package=RWeka) package can be used. You can install the packages with the following calls.
+```{r eval=FALSE, message=FALSE}
+install.packages(c("farff", "RWeka"))
+```
+
+
+### Private key notification
+
+All examples in this tutorial are given with a <span style="color:red">**READ-ONLY API key**</span>.
+
+With this key you can **read** all the information from the server but not **write** data sets, tasks, flows, and runs to the server. This key allows to emulate uploading to the server but doesn't allow to really store data. If one wants to write data to a server, one has to **get a personal API key**. The process of how to obtain a key is shown in the [configuration section](#config).
+
+<span style="color:red">**Important: Please do not write meaningless data to the server such as copies of already existing data sets, tasks, or runs (such as the ones from this tutorial)! One instance of the Iris data set should be enough for everyone. :D**</span>
+
+### Basic example {#basicexample}
+
+In this paragraph you can find an example on how to download a task from the server, print some information about it to the console, and produce a run which is then uploaded to the server. For detailed information on OpenML terminology (task, run, etc.) see the [OpenML guide](http://www.openml.org/guide).
+
+```{r eval=TRUE, message=FALSE}
+library("OpenML")
+## temporarily set API key to read only key
+setOMLConfig(apikey = "c1994bdb7ecb3c6f3c8f3b35f4b47f1f")
+
+# download a task (whose ID is 1L)
+task = getOMLTask(task.id = 1L)
+task
+```
+
+The task contains information on the following:
+
+* task type: defines the type of the task (regression, classification, clustering, etc.)
+* data set: which data set belongs to the given task (one task can always only be connected to a single data set)
+* target feature(s): optional field for all kinds of classification and regression tasks
+* tags: tags / labels, which might be helpful for further sub-selections
+* estimation procedure: which estimation procedure has been used when computing the performance
+
+In the next line, `randomForest` is used as a classifier and run with the help of the [`mlr package`](https://github.com/mlr-org/mlr). Note that one needs to run the algorithm locally and that `mlr` will automatically load the package that is needed to run the specified classifier.
+
+```{r eval=FALSE}
+# define the classifier (usually called "flow" within OpenML)
+library("mlr")
+lrn = makeLearner("classif.randomForest")
+
+# upload the new flow (with information about the algorithm and settings);
+# if this algorithm already exists on the server, one will receive a message
+# with the ID of the existing flow
+flow.id = uploadOMLFlow(lrn)
+
+# the last step is to perform a run and upload the results
+run.mlr = runTaskMlr(task, lrn)
+run.id = uploadOMLRun(run.mlr)
+```
+
+Following this very brief example, we will explain the single steps of the OpenML package in more detail in the next sections.
+
+## Configuration {#config}
+Interacting with the OpenML server requires an API key. 
+For *demonstration purposes*, we have created a *public read-only API key* (`"c1994bdb7ecb3c6f3c8f3b35f4b47f1f"`), which will be used in this tutorial to make the examples executable. However, for a full-fledged usage of the `OpenML` package, you need your personal API.
+
+
+### Generating your own personal API key {#personalapikey}
+In order to receive your own API key
+
+* register a (free) account at the [OpenML website](http://www.openml.org),
+* log in and go to <http://www.openml.org/u#!api>.
+
+### Setting your configuration {#settingconfig}
+
+You can set your own OpenML configuration either just temporarily for the current R session via `setOMLConfig` or permanently via `saveOMLConfig`. 
+In order to create a permanent configuration file using default values and at the same time setting your personal API key, run
+```{r eval = FALSE}
+saveOMLConfig(apikey = "c1994bdb7ecb3c6f3c8f3b35f4b47f1f")
+```
+where `"c1994bdb7ecb3c6f3c8f3b35f4b47f1f"` should be replaced with [*your personal API key*](#personalapikey).
+It is noteworthy that basically everybody who has access to your computer can read the configuration file and thus see your API key.
+With your API key other users have full access to your account via the API, so please handle it with care!
+
+It is also possible to manually create a file `~/.openml/config` in your home directory -- you can use the R command `path.expand("~/.openml/config")` to get the full path to the configuration file on the operating system.
+The `config` file consists of `key = value` pairs, note that the values are not quoted. An exemplary minimal `config` file might look as follows:
+```{r eval = FALSE}
+apikey=c1994bdb7ecb3c6f3c8f3b35f4b47f1f
+```
+The `config` file may contain the following information:
+
+* `server`:
+    * default: `http://www.openml.org/api/v1`
+* `cachedir`:
+    * directory where the current content of the cache is stored
+    * the default cache directory can be obtained by the R command `file.path(tempdir(), "cache")`.
+* `verbosity`:
+    * `0`: normal output
+    * `1`: info output (default)
+    * `2`: debug output
+* `arff.reader`:
+    * `RWeka`: this is the standard Java parser used in Weka
+    * `farff`: the [farff package](http://www.github.com/mlr-org/farff) provides a newer, faster parser without any Java requirements
+* `confirm.upload`:
+    * default decision w.r.t. confirming uploads
+    * per default (`FALSE`) one does not need to confirm the upload decision
+* `apikey`:
+    * required to access the server
+
+
+If you manually modify the `config` file, you need to reload the modified `config` file to the current R session using `loadOMLConfig()`. You can query the current configuration using
+```{r}
+getOMLConfig()
+```
+
+The configuration file and some related things are also explained in the [OpenML Wiki](https://github.com/openml/OpenML/wiki/Client-API).
+
+Once the config file is set up, you are **ready to go**!
+
+## Listing {#listing}
+In this stage, we want to list basic information about the various [OpenML objects](http://openml.org/guide):
+
+* data sets
+* tasks
+* flows
+* runs
+* run results
+* evaluation measures
+* task types
+
+For each of these objects, we have a function to query the information, beginning with `listOML`. All of these functions return a `data.frame`, even in case the result consists of a single column or has zero observations (i.e., rows).
+
+Note that the `listOML*` functions only list information on the corresponding objects -- they do not download the respective objects. Information on actually downloading specific objects is covered in the [next section](#download).
+
+
+### List data sets {#listdata}
+To browse the OpenML data base for appropriate data sets, you can use `listOMLDataSets()` in order to get basic data characteristics (number of features, instances, classes, missing values, etc.) for each data set.
+By default, `listOMLDataSets()` returns only data sets that have an active status on OpenML:
+```{r}
+datasets = listOMLDataSets()  # returns active data sets
+```
+
+The resulting `data.frame` contains the following information for each of the listed data sets:
+
+* the data set ID `data.id`
+* the `status` (`"active"`, `"in_preparation"` or `"deactivated"`) of the data set
+* the `name` of the data set
+* the size of the majority / biggest class (`majority.class.size`)
+* etc.
+
+```{r}
+str(datasets)
+head(datasets[, 1:5])
+```
+
+
+To find a specific data set, you can now query the resulting `datasets` object. Suppose we want
+to find the `iris` data set.
+```{r}
+subset(datasets, name == "iris")
+```
+
+As you can see, there are two data sets called `iris`. We want to use the *original* data set with three classes, which is stored under the data set ID (`data.id`) `r subset(datasets, name == "iris" & number.of.classes == 3)$data.id`.
+You can also have a closer look at the data set on the corresponding OpenML web page (http://openml.org/d/`r subset(datasets, name == "iris" & number.of.classes == 3)$data.id`).
+
+### List tasks
+Each OpenML task is a bundle that encapsulates information on various objects:
+
+* a specific [type](http://www.openml.org/search?type=task_type), e.g., `"Supervised Classification"` or `"Supervised Regression"`
+* a data set
+* a target feature (which might differ from the data set's default target)
+* an estimation/resampling procedure, e.g., a 10-fold cross-validation
+* data splits for this estimation procedure
+* one or more (performance) evaluation measures, e.g., `"predictive accuracy"` for a classification task
+
+Listing the tasks can be done via
+```{r}
+tasks = listOMLTasks()
+```
+
+The resulting `data.frame` contains for each of the listed tasks information on:
+
+* the task ID `task.id`
+* the type of the task `task.type`
+* information on the data set (analogously to the [list data set area](#listdata)), such as the number of features, classes and instances
+* the name of the target variable `target.feature`
+* `tags` which can be used for labelling the task
+* the `estimation.procedure` (aka resampling strategy)
+* the `evaluation.measures` used for measuring the performance of the [learner / flow](#flows) on the task
+
+```{r}
+str(tasks)
+```
+
+For some data sets, there may be more than one task available on the OpenML server.
+For example, one can look for `"Supervised Classification"` tasks that are available for data set 61 via
+```{r}
+head(subset(tasks, task.type == "Supervised Classification" & data.id == 61L)[, 1:5])
+```
+
+### List flows {#flows}
+A flow is the definition and implementation of a specific algorithm workflow or script, i.e., a flow is essentially the code / implementation of the algorithm.
+```{r}
+flows = listOMLFlows()
+str(flows)
+flows[56:63, 1:4]
+```
+
+### List runs and run results
+A run is an experiment, which is executed on a given combination of task, flow and setup (i.e., the explicit parameter configuration of a flow). The corresponding results are stored as a run result.
+Both objects, i.e., runs and run results, can be listed via `listOMLRuns` or `listOMLRunEvaluations`, respectively.
+As each of those objects is defined with a task, setup and flow, you can extract runs and run results with specific combinations of `task.id`, `setup.id` and/or `flow.id`.
+For instance, listing all runs for [task 59](http://www.openml.org/t/59) (supervised classification on iris) can be done with
+```{r eval=TRUE}
+runs = listOMLRuns(task.id = 59L)  # must be specified with the task, setup and/or implementation ID
+head(runs)
+
+# one of the IDs (here: task.id) must be supplied
+run.results = listOMLRunEvaluations(task.id = 59L)
+str(run.results)
+```
+
+### List evaluation measures and task types
+Analogously to the previous listings, one can list further objects simply by calling the respective functions.
+```{r eval = FALSE}
+listOMLDataSetQualities()
+listOMLEstimationProcedures()
+listOMLEvaluationMeasures()
+listOMLTaskTypes()
+```
+
+## Downloading {#download}
+Users can download data sets, tasks, flows and runs from the OpenML server.
+The package provides special representations for each object, which will be discussed here.
+
+### Download an OpenML data set
+To directly download a data set, e.g., when you want to run a few preliminary experiments, one can use the function `getOMLDataSet`.
+The function accepts a data set ID as input and returns the corresponding `OMLDataSet`:
+```{r eval=TRUE}
+iris.data = getOMLDataSet(data.id = 61L)  # the iris data set has the data set ID 61
+```
+
+### Download an OpenML task
+The following call returns an OpenML task object for a supervised classification task on the iris data:
+```{r eval=TRUE}
+task = getOMLTask(task.id = 59L)
+task
+```
+
+The corresponding `"OMLDataSet"` object can be accessed by
+```{r eval=TRUE}
+task$input$data.set
+```
+
+and the class of the task can be shown with the next line
+```{r eval=TRUE}
+task$task.type
+```
+
+Also, it is possible to extract the data set itself via
+```{r eval=TRUE}
+iris.data = task$input$data.set$data
+head(iris.data)
+```
+
+### Download an OpenML flow
+Aside from tasks and data sets, one can also download flows -- by calling `getOMLFlow` with the specific `flow.id`
+```{r eval=TRUE}
+flow = getOMLFlow(flow.id = 2700L)
+flow
+```
+
+### Download an OpenML run
+To download the results of one run, including all server and user computed metrics, you have to define the corresponding run ID. For all runs that are actually related to the task, the corresponding ID can be extracted from the `runs` object, which was created in the previous section.
+Here we use a run of task 59, which has the `run.id` 525534.
+Single OpenML runs can be downloaded with the function `getOMLRun`:
+```{r eval=TRUE}
+task.list = listOMLRuns(task.id = 59L)
+task.list[281:285, ]
+run = getOMLRun(run.id = 524027L)
+run
+```
+Each `OMLRun` object is a list object, which stores additional information on the run. For instance, the flow of the previously downloaded run has some non-default settings for hyperparameters, which can be obtained by:
+```{r eval=TRUE}
+run$parameter.setting  # retrieve the list of parameter settings
+```
+
+If the underlying flow has hyperparameters that are different from the default values of the corresponding learner, they are also shown, otherwise the default hyperparameters are used (but not explicitly listed).
+
+All the data that served as input for the run, including data set IDs and the URL to the data, is stored in `input.data`:
+```{r eval=TRUE}
+run$input.data
+```
+
+Predictions made by an uploaded run are stored within the `predictions` element and can be retrieved via
+```{r eval=TRUE}
+head(run$predictions, 10)
+```
+The output above shows predictions, ground truth information about classes and task-specific information, e.g., about the confidence of a classifier (for every observation) or in which fold a data point has been placed.
+
+## Running {#running}
+The modularized structure of OpenML allows to apply the implementation of an algorithm to a specific task and there exist multiple possibilities to do this.
+
+### Run a task with a specified mlr learner
+If one is working with [**mlr**](https://github.com/mlr-org/mlr), one can specify an `RLearner` object and use the function `runTaskMlr` to create the desired `"OMLMlrRun"` object.
+The `task` is created the same way as in the previous sections:
+```{r, warning = FALSE, message = FALSE}
+task = getOMLTask(task.id = 59L)
+
+library("mlr")
+lrn = makeLearner("classif.rpart")
+run.mlr = runTaskMlr(task, lrn)
+run.mlr
+```
+Note that locally created runs don't have a run ID or flow ID yet. These are assigned by the OpenML server after uploading the run.
+
+### Run a task without using mlr
+If you are not using `mlr`, you will have to invest some more time and effort to get things done since this is not supported yet. So, unless you have good reasons to do otherwise, we strongly encourage to use `mlr`.
+If the algorithm you want to use is not integrated in `mlr` yet, you can integrate it yourself (see the [tutorial](http://mlr-org.github.io/mlr-tutorial/devel/html/create_learner/index.html)) or open an [issue on mlr GitHub repository](https://github.com/mlr-org/mlr/issues) and hope someone else will do it for you.
+
+## Uploading {#upload}
+The following section gives an overview on how one can contribute building blocks (i.e. data sets, flows and runs) to the OpenML server.
+
+
+### Upload a data set
+A data set contains information that can be stored on OpenML and used by OpenML tasks and runs. This example shows how a very simple data set can be taken from R, converted to an OpenML data set and afterwards uploaded to the server. The corresponding workflow consists of the following three steps:
+
+1. `makeOMLDataSetDescription`: create the description object of an OpenML data set
+2. `makeOMLDataSet`: convert the data set into an OpenML data set
+3. `uploadOMLDataSet`: upload the data set to the server
+
+```{r eval = FALSE, warning = FALSE, message = TRUE}
+data("airquality")
+dsc = "Daily air quality measurements in New York, May to September 1973.
+  This data is taken from R."
+cit = "Chambers, J. M., Cleveland, W. S., Kleiner, B. and Tukey, P. A. (1983)
+  Graphical Methods for Data Analysis. Belmont, CA: Wadsworth."
+
+## (1) Create the description object
+desc = makeOMLDataSetDescription(name = "airquality",
+  description = dsc,
+  creator = "New York State Department of Conservation (ozone data) and the National
+    Weather Service (meteorological data)",
+  collection.date = "May 1, 1973 to September 30, 1973",
+  language = "English",
+  licence = "GPL-2",
+  url = "https://stat.ethz.ch/R-manual/R-devel/library/datasets/html/00Index.html",
+  default.target.attribute = "Ozone",
+  citation = cit,
+  tags = "R")
+
+## (2) Create the OpenML data set
+air.data = makeOMLDataSet(desc = desc,
+  data = airquality,
+  colnames.old = colnames(airquality),
+  colnames.new = colnames(airquality),
+  target.features = "Ozone")
+
+## (3) Upload the OpenML data set to the server
+## Because this is a simple data set which is generally already available in R
+## please do not actually upload it to the server!
+## The code would be:
+#dataset.id = uploadOMLDataSet(air.data)
+#dataset.id
+```
+
+Alternatively you can enter data directly on the [OpenML website](http://www.openml.org/new/data).
+
+
+### Upload a flow
+
+A [flow](#flows) is an implementation of a single algorithm or a script. Each [`mlr` learner](http://mlr-org.github.io/mlr-tutorial/release/html/integrated_learners/) can be considered an implementation of a flow, which can be uploaded to the server with the function `uploadOMLFlow`.
+If the flow has already been uploaded to the server (either by you or someone else), one receives a message that the flow already exists and the `flow.id` is returned from the function. Otherwise, the flow will be uploaded, receive its own `flow.id` and return that ID.
+
+```{r eval = FALSE, warning = FALSE, message = TRUE}
+library("mlr")
+lrn = makeLearner("classif.randomForest")
+flow.id = uploadOMLFlow(lrn)
+flow.id
+```
+
+
+
+### Upload a run
+
+In addition to uploading data sets or flows, one can also upload runs (which a priori have to be created, e.g., using `mlr`):
+```{r eval = FALSE}
+## choose 2 flows (i.e., mlr-learners)
+learners = list(
+  makeLearner("classif.kknn"),
+  makeLearner("classif.randomForest")
+)
+
+## pick 3 random tasks
+task.ids = c(57, 59, 2382)
+
+for (lrn in learners) {
+  for (id in task.ids) {
+    task = getOMLTask(id)
+    res = runTaskMlr(task, lrn)$run
+    run.id = uploadOMLRun(res)  # upload results
+  }
+}
+```
+
+Before your run will be uploaded to the server, `uploadOMLRun` checks whether the flow that created this run is already available on the server. If the flow does not exist on the server, it will (automatically) be uploaded as well.
+
+## Feedback
+
+Now, you should have gotten an idea on how to use our package. However, as there is always room for improvement, we are more than happy to receive your feedback. So, in case
+
+* there is anything not well documented,
+* you encounter a bug, or
+* you are missing functionality
+
+please open an issue in the [issue tracker of our GitHub repository](https://github.com/openml/openml-r/issues).

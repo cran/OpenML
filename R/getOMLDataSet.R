@@ -40,22 +40,13 @@ getOMLDataSet = function(data.id = NULL, data.name = NULL, data.version = NULL, 
 
 # Helper function to get data set by data name (and version number).
 # (Makes use of getOMLDataSetById)
-getOMLDataSetByName = function(data.name, data.version, cache.only = FALSE, verbosity = NULL) {
+getOMLDataSetByName = function(data.name = NULL, data.version = NULL, cache.only = FALSE, verbosity = NULL) {
   # else get list of datasets RESTRICTED to the given name
   data.sets = .listOMLDataSets(data.name = data.name, verbosity = verbosity)
 
   # match by name
   matching.ids = which(data.sets$name == data.name)
   matching.sets = data.sets[matching.ids, , drop = FALSE]
-
-  # get number of matches ...
-  n.matches = length(matching.ids)
-
-  # ... and react accordingly
-  if (n.matches == 0)
-    stopf("No dataset with name '%s' found.", data.name)
-  if (n.matches == 1)
-    return(getOMLDataSetById(data.id = matching.sets$data.id, cache.only = cache.only, verbosity = verbosity))
 
   # otherwise we have multiple matches and need to consider the version
   data.id = if (is.null(data.version)) {
@@ -71,6 +62,15 @@ getOMLDataSetByName = function(data.name, data.version, cache.only = FALSE, verb
     stopf("Version %i does not exist for dataset '%s'. Available versions: %s",
       data.version, data.name, collapse(matching.sets$version, sep = ", "))
   }
+
+  # get number of matches ...
+  n.matches = length(matching.ids)
+  # ... and react accordingly
+  if (n.matches == 0)
+    stopf("No dataset with name '%s' found.", data.name)
+  if (n.matches == 1)
+    return(getOMLDataSetById(data.id = matching.sets$data.id, cache.only = cache.only, verbosity = verbosity))
+
   return(getOMLDataSetById(data.id = data.id, cache.only = cache.only, verbosity = verbosity))
 }
 
@@ -83,12 +83,10 @@ getOMLDataSetById = function(data.id = NULL, cache.only = FALSE, verbosity = NUL
   data.desc = parseOMLDataSetDescription(down$doc)
 
   # warn if dataset not cached and deactivated
-  if (!cache.only & !f$dataset.arff$found) {
-    if (data.desc$status == "deactivated") {
-      stop("Data set has been deactivated.")
-    } else if (data.desc$status == "in_preparation") {
-      stop("Data set is in preparation. You can download it as soon as it's active.")
-    }
+  if (data.desc$status == "deactivated") {
+    warningf("Data set has been deactivated.")
+  } else if (data.desc$status == "in_preparation") {
+    warningf("Data set is in preparation and will be activated soon.")
   }
 
   # now read data file
@@ -123,7 +121,8 @@ getOMLDataSetById = function(data.id = NULL, cache.only = FALSE, verbosity = NUL
 
 parseOMLDataSetDescription = function(doc) {
   default.target.attribute = xmlOValS(doc, "/oml:data_set_description/oml:default_target_attribute")
-  
+  default.target.attribute = if (!is.null(default.target.attribute)) unlist(strsplit(default.target.attribute, ",")) else ""
+
   args = filterNull(list(
     id = xmlRValI(doc, "/oml:data_set_description/oml:id"),
     name = xmlRValS(doc, "/oml:data_set_description/oml:name"),
@@ -137,7 +136,7 @@ parseOMLDataSetDescription = function(doc) {
     language = xmlOValS(doc, "/oml:data_set_description/oml:language"),
     licence = xmlOValS(doc, "/oml:data_set_description/oml:licence"),
     url = xmlRValS(doc, "/oml:data_set_description/oml:url"),
-    default.target.attribute = unlist(strsplit(default.target.attribute, ",")),
+    default.target.attribute = default.target.attribute,
     row.id.attribute = xmlOValS(doc, "/oml:data_set_description/oml:row_id_attribute"),
     ignore.attribute = xmlOValsMultNsS(doc, "/oml:data_set_description/oml:ignore_attribute"),
     version.label = xmlOValS(doc, "/oml:data_set_description/oml:version_label"),

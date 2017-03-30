@@ -2,7 +2,7 @@
 % Please edit documentation in R/listOMLTasks.R
 \name{listOMLTasks}
 \alias{listOMLTasks}
-\title{List available OpenML tasks.}
+\title{List the first 5000 OpenML tasks.}
 \usage{
 listOMLTasks(task.type = NULL, estimation.procedure = NULL,
   evaluation.measures = NULL, number.of.instances = NULL,
@@ -84,6 +84,7 @@ Default is set via \code{\link{setOMLConfig}}.}
 \description{
 The returned \code{data.frame} contains the \code{task_id}, the data set id \code{data.id},
 the \code{status} and some describing data qualities.
+Note that by default only the first 5000 data sets will be returned (due to the argument \dQuote{limit = 5000}).
 }
 \note{
 This function is memoised. I.e., if you call this function twice in a running R session,
@@ -110,4 +111,3 @@ Other task-related functions: \code{\link{convertOMLTaskToMlr}},
   \code{\link{listOMLTaskTypes}},
   \code{\link{makeOMLTask}}, \code{\link{tagOMLObject}}
 }
-

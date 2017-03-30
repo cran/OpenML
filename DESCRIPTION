@@ -19,18 +19,18 @@ Maintainer: Giuseppe Casalicchio <giuseppe.casalicchio@stat.uni-muenchen.de>
 License: BSD_2_clause + file LICENSE
 URL: https://github.com/openml/openml-r
 BugReports: https://github.com/openml/openml-r/issues
-Depends: R (>= 3.0.2), mlr (>= 2.10)
-Suggests: testthat, randomForest, rpart, RWeka, farff, mboost, knitr,
+Depends: R (>= 3.0.2), mlr (>= 2.11)
+Suggests: testthat, xml2, randomForest, rpart, RWeka, farff, knitr,
         rmarkdown, R.rsp
-Imports: backports (>= 1.0.3), BBmisc (>= 1.10), checkmate (>= 1.8.1),
-        ParamHelpers (>= 1.9), data.table, digest, httr, stringi, XML,
+Imports: backports (>= 1.0.3), BBmisc (>= 1.11), checkmate (>= 1.8.2),
+        ParamHelpers (>= 1.10), data.table, digest, httr, stringi, XML,
         jsonlite, memoise (>= 1.0.0), stats, curl
 LazyData: yes
 ByteCompile: yes
-Version: 1.2
-RoxygenNote: 5.0.1
+Version: 1.3
+RoxygenNote: 6.0.1
 VignetteBuilder: R.rsp
 NeedsCompilation: no
-Packaged: 2017-02-07 13:52:16 UTC; Admin2
+Packaged: 2017-03-30 09:26:23 UTC; Admin2
 Repository: CRAN
-Date/Publication: 2017-02-07 18:07:25
+Date/Publication: 2017-03-30 11:28:29 UTC

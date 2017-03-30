@@ -2,7 +2,7 @@
 % Please edit documentation in R/listOMLDataSets.R
 \name{listOMLDataSets}
 \alias{listOMLDataSets}
-\title{List available OpenML data sets.}
+\title{List the first 5000 OpenML data sets.}
 \usage{
 listOMLDataSets(number.of.instances = NULL, number.of.features = NULL,
   number.of.classes = NULL, number.of.missing.values = NULL, tag = NULL,
@@ -62,6 +62,7 @@ Default is set via \code{\link{setOMLConfig}}.}
 The returned \code{data.frame} contains the data set id \dQuote{data.id},
 the \dQuote{status} (\dQuote{active}, \dQuote{deactivated}, \dQuote{in_preparation})
 and describing data qualities.
+Note that by default only the first 5000 data sets will be returned (due to the argument \dQuote{limit = 5000}).
 }
 \note{
 This function is memoised. I.e., if you call this function twice in a running R session,
@@ -76,6 +77,13 @@ You can reset the cache by calling \code{\link[memoise]{forget}} on the function
 }
 }
 \seealso{
+Other listing functions: \code{\link{listOMLDataSetQualities}},
+  \code{\link{listOMLEstimationProcedures}},
+  \code{\link{listOMLEvaluationMeasures}},
+  \code{\link{listOMLFlows}}, \code{\link{listOMLRuns}},
+  \code{\link{listOMLTaskTypes}},
+  \code{\link{listOMLTasks}}
+
 Other data set-related functions: \code{\link{OMLDataSetDescription}},
   \code{\link{OMLDataSet}},
   \code{\link{convertMlrTaskToOMLDataSet}},
@@ -83,12 +91,4 @@ Other data set-related functions: \code{\link{OMLDataSetDescription}},
   \code{\link{deleteOMLObject}},
   \code{\link{getOMLDataSet}}, \code{\link{tagOMLObject}},
   \code{\link{uploadOMLDataSet}}
-
-Other listing functions: \code{\link{listOMLDataSetQualities}},
-  \code{\link{listOMLEstimationProcedures}},
-  \code{\link{listOMLEvaluationMeasures}},
-  \code{\link{listOMLFlows}}, \code{\link{listOMLRuns}},
-  \code{\link{listOMLTaskTypes}},
-  \code{\link{listOMLTasks}}
 }
-
