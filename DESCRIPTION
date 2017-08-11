@@ -27,10 +27,10 @@ Imports: backports (>= 1.1.0), BBmisc (>= 1.11), checkmate (>= 1.8.2),
         jsonlite, memoise (>= 1.0.0), stats, curl
 LazyData: yes
 ByteCompile: yes
-Version: 1.4
+Version: 1.5
 RoxygenNote: 6.0.1
 VignetteBuilder: R.rsp
 NeedsCompilation: no
-Packaged: 2017-06-22 09:55:18 UTC; Admin2
+Packaged: 2017-08-11 15:45:08 UTC; Admin2
 Repository: CRAN
-Date/Publication: 2017-06-22 11:25:24 UTC
+Date/Publication: 2017-08-11 16:27:47 UTC
