@@ -17,16 +17,16 @@ URL: https://github.com/openml/openml-r
 BugReports: https://github.com/openml/openml-r/issues
 Depends: R (>= 3.0.2), mlr (>= 2.11)
 Suggests: testthat, xml2, randomForest, rpart, RWeka, farff, knitr,
-        rmarkdown, R.rsp
+        rmarkdown, R.rsp, lintr (>= 1.0.1)
 Imports: backports (>= 1.1.0), BBmisc (>= 1.11), checkmate (>= 1.8.2),
         ParamHelpers (>= 1.10), data.table, digest, httr, stringi, XML,
-        jsonlite, memoise (>= 1.0.0), stats, curl
+        jsonlite, memoise (>= 1.0.0), stats, curl (>= 3.1)
 LazyData: yes
 ByteCompile: yes
-Version: 1.7
+Version: 1.8
 RoxygenNote: 6.0.1
 VignetteBuilder: R.rsp
 NeedsCompilation: no
-Packaged: 2017-10-17 15:21:12 UTC; Admin2
+Packaged: 2018-03-02 06:05:36 UTC; Admin2
 Repository: CRAN
-Date/Publication: 2017-10-17 15:46:11 UTC
+Date/Publication: 2018-03-02 06:27:46 UTC
