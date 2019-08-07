@@ -28,17 +28,12 @@ makeOMLRunParList = function(mlr.lrn, component = NA_character_) {
   assertClass(mlr.lrn, "Learner")
   assertString(component, na.ok = TRUE)
 
-  if (testClass(mlr.lrn, "TuneWrapper")) mlr.lrn = removeAllHyperPars(mlr.lrn)
+  # FIXME: TuneWrapper contains opt.pars slot. Should we use this here?
+  # if (testClass(mlr.lrn, "TuneWrapper")) mlr.lrn = removeAllHyperPars(mlr.lrn) # looked like a bug
 
   ps = getParamSet(mlr.lrn)
   par.vals = mlr::getHyperPars(mlr.lrn)
   par.names = names(par.vals)
-  # get defaults for par.vals that have been set
-  par.defaults = getDefaults(ps)
-  # store only par.vals that are different from default values
-  par.ind = vlapply(par.names, function(x) !isTRUE(all.equal(par.defaults[[x]], par.vals[[x]])))
-  par.vals = par.vals[par.ind]
-  par.names = par.names[par.ind]
 
   par.settings = setNames(vector("list", length(par.vals)), par.names)
   for (i in seq_along(par.vals)) {
@@ -104,7 +99,7 @@ getOMLRunParList = function(run) {
 convertOMLRunParListToList = function(x, ps = NULL, ...) {
   assertClass(x, "OMLRunParList")
   par.list = extractSubList(x, "value", simplify = FALSE)
-  if (!testNamed(par.list)) {
+  if (!testNames(names(par.list))) {
     par.names = extractSubList(x, "name")
     par.list = setNames(par.list, par.names)
   }
@@ -166,8 +161,6 @@ stringToParam = function(par, x) {
   else if (type %in% c("function", "untyped"))
     unserialize(charToRaw(x))
 }
-
-
 
 #' @export
 as.data.frame.OMLRunParList = function(x, ...) {

@@ -4,7 +4,7 @@
 \alias{deleteOMLObject}
 \title{Delete an OpenML object.}
 \usage{
-deleteOMLObject(id, object = c("data", "task", "flow", "run"),
+deleteOMLObject(id, object = c("data", "task", "flow", "run", "study"),
   verbosity = NULL)
 }
 \arguments{
@@ -53,3 +53,7 @@ Other run-related functions: \code{\link{convertOMLMlrRunToBMR}},
   \code{\link{makeOMLRun}}, \code{\link{tagOMLObject}},
   \code{\link{uploadOMLRun}}
 }
+\concept{data set-related functions}
+\concept{flow-related functions}
+\concept{run-related functions}
+\concept{task-related functions}

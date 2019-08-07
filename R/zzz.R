@@ -1,5 +1,4 @@
 #' @import BBmisc
-#' @import mlr
 #' @import curl
 #' @import checkmate
 #' @import ParamHelpers
@@ -10,7 +9,7 @@
 #' @importFrom httr POST GET DELETE content upload_file status_code
 #' @importFrom memoise memoise forget
 #' @importFrom digest digest
-#' @importFrom stats setNames sd
+#' @importFrom stats setNames sd na.omit
 #' @importFrom utils packageVersion type.convert
 NULL
 

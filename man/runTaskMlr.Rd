@@ -5,8 +5,8 @@
 \alias{OMLMlrRun}
 \title{Run mlr learner on OpenML task.}
 \usage{
-runTaskMlr(task, learner, measures = NULL, verbosity = NULL, seed = 1,
-  scimark.vector = NULL, models = TRUE, ...)
+runTaskMlr(task, learner, measures = NULL, verbosity = NULL,
+  seed = 1, scimark.vector = NULL, models = TRUE, ...)
 }
 \arguments{
 \item{task}{[\code{\link{OMLTask}}]\cr
@@ -52,6 +52,7 @@ Further arguments that are passed to \code{\link{convertOMLTaskToMlr}}.}
 }
 \description{
 Run task with a specified learner from \pkg{mlr} and produce predictions.
+By default, the evaluation measure contained in the task is used.
 }
 \examples{
 # \dontrun{

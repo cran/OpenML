@@ -59,9 +59,9 @@ convertOMLDataSetToMlr = function(
   assertChoice(task.type, getValidTaskTypes())
 
   #  remove ignored attributes from data
-  if (!is.na(desc$ignore.attribute) && ignore.flagged.attributes) {
-    inds = which(obj$colnames.old %in% desc$ignore.attribute)
-    data = data[, -inds]
+  if (any(!is.na(desc$ignore.attribute)) & ignore.flagged.attributes) {
+    keep.cols = obj$colnames.old %nin% desc$ignore.attribute
+    data = data[, keep.cols, drop = FALSE]
   }
 
   # drop levels
