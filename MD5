@@ -1,13 +1,13 @@
-20363c5857a6bc6e7b21e3c8b5824b8a *DESCRIPTION
+76e9c6f41e6296c6b4cbde00930069a9 *DESCRIPTION
 4c0b89847b5aabd86ffc20be574c96b2 *LICENSE
-8ac78e03d4a1ff628e904b4fe1466dfe *NAMESPACE
-696cae3495e41c18e896b98a5be5d052 *NEWS
+0c8fbe0659cf4bdd4c6f9fa6841b7c2f *NAMESPACE
+6b85c81a92647bc482afe90f273d4d77 *NEWS
 72e725ca2393664fd5b2202f5163acd0 *R/OMLDataSetDescription_Class.R
 c5eba37cbfaf414e29eac375e04e039a *R/OMLDataSet_Class.R
 fc8d4ff10724c828a2842fc05dfd8569 *R/OMLEstimationProcedure_Class.R
 8a87989d385d86b72d43041beb3f8c73 *R/OMLFlow_Class.R
 9acf192829c9a1569af795a1a617cf64 *R/OMLIOData_Class.R
-d58748943d4f8c6a297f3e9b22904a37 *R/OMLRunParList_Class.R
+e9b83158ac2e2bf6d9c7954f842def0d *R/OMLRunParList_Class.R
 d5428039226e67a6c63180995569b7f4 *R/OMLRunParameter_Class.R
 59e22fc4f9cde7740e1355cc203a310b *R/OMLRun_Class.R
 f3544b64de4ba2b8a83b2e6962bfd5b9 *R/OMLSeedParList_Class.R
@@ -17,7 +17,7 @@ ae9582682156aca482a88f71e2502106 *R/cache.R
 996feaf1d4942f014f945241cbf8aeec *R/chunkOMLlist.R
 43fbf0dfb0923a72bacedadd54961922 *R/config.R
 7d78e159af9deaccceb2c9b234b4b5e4 *R/config_helpers.R
-b08c887766af1f063066a1b87cc00429 *R/convertMlrLearnerToOMLFlow.R
+d043d499c8345352f8e2cf19b07b9ae5 *R/convertMlrLearnerToOMLFlow.R
 d7c4a9587ead60f4b559cff6ae99c6f6 *R/convertMlrTaskToOMLDataSet.R
 944c0375ca4abce3c10f021061b99367 *R/convertOMLDataSetToMlr.R
 d369aa51f03b5be72ec5a8ffe88b77c0 *R/convertOMLFlowToMlr.R
@@ -54,7 +54,7 @@ de66304f194b31bd85a6f271a9417cac *R/listOMLTasks.R
 f07606c957d8c1f83f91cb1aa6c6aa01 *R/loadOMLConfig.R
 196eae9af5b7456122983f24b2714806 *R/populateOMLCache.R
 5efbd7247063892dc1456bf00f661340 *R/reformatPredictions.R
-c34be2c279c59ea3a706364b0bc74926 *R/runTaskFlow.R
+90145a56b980473af75a3087de60f1e9 *R/runTaskFlow.R
 7649b3e8ec10ac619b0fa010c57eddfd *R/runTaskMlr.R
 a95f4d1b4ee4c451c5b65530be0d9056 *R/saveOMLConfig.R
 4276ddcb91285974eb37955913bb4fca *R/setOMLConfig.R
@@ -70,7 +70,7 @@ f3f511cada5a5fdc55f1e75a8105b571 *R/uploadOMLTask.R
 49d38bb9d5815a36f5235fe9d67e7858 *R/writeOMLStudyXML.R
 d9a5e11b44dfde83cb5b8d478d5cdd55 *R/writeOMLTaskXML.R
 7919fc5de53d369e8c54f72c0d326b63 *R/xml_helpers.R
-cc19394adb01a025a3512a773290e408 *R/zzz.R
+425d3633d6cb0ca3482094d521594fbe *R/zzz.R
 3ba713cd27b8e996564e8803b84df637 *build/vignette.rds
 ab45dd94500d84b2838cf284f7343df2 *inst/CITATION
 2933ab49c61608b736bccee69fb9bd39 *inst/doc/OpenML.html
