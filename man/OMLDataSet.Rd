@@ -5,8 +5,13 @@
 \alias{makeOMLDataSet}
 \title{OMLDataSet.}
 \usage{
-makeOMLDataSet(desc, data, colnames.old = colnames(data),
-  colnames.new = colnames(data), target.features = NULL)
+makeOMLDataSet(
+  desc,
+  data,
+  colnames.old = colnames(data),
+  colnames.new = colnames(data),
+  target.features = NULL
+)
 }
 \arguments{
 \item{desc}{[\code{OMLDataSetDescription}]\cr
@@ -35,7 +40,7 @@ finally, the target features.
 
 The \code{\link{OMLDataSetDescription}} provides information on the data set,
 like the ID, name, version, etc. To see a full list of all elements, please see the
-\href{https://www.openml.org/api/v1/xsd/openml.data.upload}{XSD}.
+\href{https://docs.openml.org/}{documentation}.
 
 The slot \code{colnames.old} contains the original names, i.e., the column names that were
 uploaded to the server, while \code{colnames.new} contains the names that you will see when
@@ -71,13 +76,14 @@ airquality_oml = makeOMLDataSet(desc = desc_airquality,
   target.features = "Ozone")
 }
 \seealso{
-Other data set-related functions: \code{\link{OMLDataSetDescription}},
-  \code{\link{convertMlrTaskToOMLDataSet}},
-  \code{\link{convertOMLDataSetToMlr}},
-  \code{\link{deleteOMLObject}},
-  \code{\link{getOMLDataSet}},
-  \code{\link{listOMLDataSets}},
-  \code{\link{tagOMLObject}},
-  \code{\link{uploadOMLDataSet}}
+Other data set-related functions: 
+\code{\link{OMLDataSetDescription}},
+\code{\link{convertMlrTaskToOMLDataSet}()},
+\code{\link{convertOMLDataSetToMlr}()},
+\code{\link{deleteOMLObject}()},
+\code{\link{getOMLDataSet}()},
+\code{\link{listOMLDataSets}()},
+\code{\link{tagOMLObject}()},
+\code{\link{uploadOMLDataSet}()}
 }
 \concept{data set-related functions}

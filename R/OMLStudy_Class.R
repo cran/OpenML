@@ -3,7 +3,7 @@
 #' @description
 #' If you create a study through the website \url{https://www.openml.org/new/study}, you can also specify an alias which can be used to access the study.
 #' To see a full list of all elements, please see the
-#' \href{https://www.openml.org/api/v1/xsd/openml.study.upload}{XSD}.
+#' \href{https://docs.openml.org/}{documentation}.
 #'
 #' @param alias [\code{character}]\cr
 #'   The alias of the study.
@@ -30,7 +30,7 @@ makeOMLStudy = function(alias, name, description,
   assertString(name)
   assertString(description)
   assertIntegerish(data.id, null.ok = TRUE)
-  assertIntegerish(task.id, null.ok = TRUE)
+  assertIntegerish(task.id, null.ok = FALSE)
   assertIntegerish(flow.id, null.ok = TRUE)
   assertIntegerish(run.id, null.ok = TRUE)
 
